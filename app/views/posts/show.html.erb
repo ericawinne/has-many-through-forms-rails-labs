@@ -1,44 +1,31 @@
-<h1>Post Show page</h1>
+<h1><%= @post.title %></h1>
 
-Title: <%= @post.title %>
 <br>
-Content: <%= @post.content %>
+  <%= @post.content %>
 <br>
-
-Categories: 
-<% @post.categories.each do |category| %>
-    <p><%= category.name %></p>
+Categories: <%= @post.categories.map(&:name).join(' ') %>
+<br>
+<% @post.comments.each do |comment| %>
+    <%= comment.user.username %> says: <%= comment.content %>
 <% end %>
 
 Comments:
-<% @post.comments.each do |comment| %>
-    <p><%= comment.content %></p>
-<% end %>
-<br>
-
-Users:
-<% @post.users.uniq.each do |user| %>
-    <p><%= user.username %></p>
+<% @post.users.distinct.each do |user| %>
+    <%= link_to user.username, user_path(user) %>
 <% end %>
 
-<h4>Add a NEW comment:</h4>
+<%= form_for @post.comments.build do |f| %>
+  <%= f.hidden_field :post_id %>
+    <%= f.collection_select :user_id, User.all, :id, :username %>    
 
-<%= form_for Comment.new do |f| %>
-    <%= f.hidden_field :post_id, value: @post.id %>
-    <%= f.label :content %>
-    <%= f.text_field :content %>
-    <br>
-    <br>
-
-    <h4>Select a User:</h4>
-    <%= f.collection_select :user_id. User.all, :id, :namename, include_blank: true %>
-    <br>
-    <h4>Enter Username:</h4>
-    <%= f.fields_for :user, User.new do |u| %>
-        <%= u.label :username %>
-        <%= u.text_field :username %>
-    <% end %> 
-
-    <%= f.submit %>
+  <%= f.fields_for :user, User.new do |user_fields| %>
+    <%= user_fields.label :username %>
+    <%= user_fields.text_field :username %>
+  <% end %>
+  <br>
+    <%= f.label :content, "New Comment" %><br>
+    <%= f.text_area :content %>
+  <br/>
+  <%= f.submit %>
 <% end %>
 
